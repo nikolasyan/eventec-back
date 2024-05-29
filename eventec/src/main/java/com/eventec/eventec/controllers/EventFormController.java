@@ -11,7 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,21 +32,57 @@ public class EventFormController {
     private SubscriptionRepository subscriptionRepository;
 
 
-    @PostMapping("/event")
-    public ResponseEntity<?> createEventItem(@RequestBody @Valid EventItem eventItem) {
 
-        String userEmail = eventItem.getUser().getEmail();
-        String userPassword = eventItem.getUser().getPassword();
+    @PostMapping("/event")
+    public ResponseEntity<?> createEventItem(
+            @RequestParam("bannerImage") MultipartFile bannerImage,
+            @RequestParam("userEmail") String userEmail,
+            @RequestParam("userPassword") String userPassword,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("category") String category,
+            @RequestParam("address") String address,
+            @RequestParam("addressLat") Double addressLat,
+            @RequestParam("addressLng") Double addressLng,
+            @RequestParam("dateEvent") LocalDateTime dateEvent,
+            @RequestParam("dateEndEvent") LocalDateTime dateEndEvent,
+            @RequestParam("cargaHoraria") Double cargaHoraria,
+            @RequestParam("abertoPublico") boolean abertoPublico,
+            @RequestParam("vagas") int vagas,
+            @RequestParam("preRequisitos") String preRequisitos,
+            @RequestParam("locationEvent") String locationEvent
+    ) {
         Optional<UserItem> userOpt = userItemService.getByEmailAndPassword(userEmail, userPassword);
 
         if(userOpt.isPresent()) {
             UserItem user = userOpt.get();
+
+            EventItem eventItem = new EventItem();
             eventItem.setUser(user);
+            eventItem.setTitle(title);
+            eventItem.setDescription(description);
+            eventItem.setCategory(category);
+            eventItem.setAddress(address);
+            eventItem.setAddressLat(addressLat);
+            eventItem.setAddressLng(addressLng);
+            eventItem.setDateEvent(dateEvent);
+            eventItem.setDateEndEvent(dateEndEvent);
+            eventItem.setCargaHoraria(cargaHoraria);
+            eventItem.setAbertoPublico(abertoPublico);
+            eventItem.setVagas(vagas);
+            eventItem.setPreRequisitos(preRequisitos);
+            eventItem.setLocationEvent(locationEvent);
+
+            try {
+                byte[] bannerImageData = bannerImage.getBytes();
+                eventItem.setBannerImage(bannerImageData);
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erro ao processar a imagem do banner.");
+            }
 
             eventItemService.save(eventItem);
             return ResponseEntity.ok("Evento criado com sucesso!");
         } else {
-            // Lide com o cenário em que o usuário não foi encontrado, talvez retornando um erro.
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário não encontrado.");
         }
     }
@@ -79,6 +118,7 @@ public class EventFormController {
             EventItem existingEvent = existingEventOpt.get();
 
             existingEvent.setDateEvent(updatedEvent.getDateEvent());
+            existingEvent.setDateEndEvent(updatedEvent.getDateEndEvent());
 
             eventItemService.save(existingEvent);
 

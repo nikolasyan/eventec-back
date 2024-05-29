@@ -34,7 +34,7 @@ public class SubscriptionItem implements Serializable {
     private String title;
 
     @Column(name = "event_date")
-    private String dateEvent;
+    private LocalDateTime dateEvent; // Alterado para LocalDateTime
 
     @Column(name = "event_address")
     private String address;
@@ -45,21 +45,22 @@ public class SubscriptionItem implements Serializable {
     @PrePersist
     @PreUpdate
     public void updateUserNameTitle() {
-        if (user != null || title != null || dateEvent != null || address != null) {
+        if (user != null || event != null) {
             this.userName = user.getUserName();
             this.title = event.getTitle();
-            this.dateEvent = String.valueOf(event.getDateEvent());
+            this.dateEvent = event.getDateEvent();
             this.address = event.getAddress();
         }
     }
 
-
+    public String getTitle() {
+        return event.getTitle();
+    }
 
     @Override
     public String toString() {
         return String.format(
                 "Subscription{subscriptionId=%d, user=%s, title=%s userName=%s, event=%s, subscriptionDate=%s}",
                 subscriptionId, user.getUserid(), event.getTitle(), user.getUserName(), event.getId(), subscriptionDate);
-
     }
 }

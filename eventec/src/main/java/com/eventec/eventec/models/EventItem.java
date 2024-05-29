@@ -18,8 +18,8 @@ public class EventItem implements Serializable {
     private String title;
     private String description;
     private String category;
-    @Column(name = "date_event")
     private LocalDateTime dateEvent;
+    private LocalDateTime dateEndEvent;
     private String address;
     private Double addressLat;
     private Double addressLng;
@@ -27,6 +27,13 @@ public class EventItem implements Serializable {
     private boolean abertoPublico;
     private String locationEvent;
     private Double cargaHoraria;
+    private int vagas;
+    private String preRequisitos;
+
+    @Lob
+    @Column(name = "bannerImage", columnDefinition = "mediumblob")
+    private byte[] bannerImage;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
@@ -36,8 +43,8 @@ public class EventItem implements Serializable {
     @Override
     public String toString() {
         return String.format(
-                "EventItem{id=%d, title='%s', description='%s', category='%s', dateEvent='%s', address='%s', addressLat='%f', addressLng='%f', approved='%s', abertoPublico='%s', locationEvent= '%s', cargaHoraria='%f'}",
-                id, title, description, category, dateEvent, address, addressLat, addressLng, approved, abertoPublico, locationEvent, cargaHoraria);
+                "EventItem{id=%d, title='%s', description='%s', category='%s', dateEvent='%s', address='%s', addressLat='%f', addressLng='%f', approved='%s', abertoPublico='%s', locationEvent= '%s', cargaHoraria='%f', dateEndEvent='%s', bannerImage=%d, vagas=%d, preRequisitos='%s'}",
+                id, title, description, category, dateEvent, address, addressLat, addressLng, approved, abertoPublico, locationEvent, cargaHoraria, (bannerImage != null ? bannerImage.length : 0));
     }
 
 

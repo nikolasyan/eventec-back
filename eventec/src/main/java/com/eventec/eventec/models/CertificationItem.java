@@ -20,11 +20,11 @@ public class CertificationItem implements Serializable {
     @JoinColumn(name = "subscription_id")
     private SubscriptionItem subscription;
 
-    private Long userid; // Agora representa o ID do usuário
+    private Long userid;
     private String userName;
     private String eventTitle;
     private LocalDateTime eventDate;
-
+    private String professorName;
     @Column(name = "event_id")
     private Long eventId;
 
@@ -40,10 +40,22 @@ public class CertificationItem implements Serializable {
         if (subscription != null) {
             this.userName = subscription.getUserName();
             this.eventTitle = subscription.getTitle();
-            this.eventDate = LocalDateTime.parse(subscription.getDateEvent());
+            this.eventDate = parseEventDate(String.valueOf(subscription.getDateEvent()));
             this.eventId = subscription.getEvent().getId();
             this.userid = subscription.getUser().getUserid();
         }
+    }
+
+    private LocalDateTime parseEventDate(String dateEvent) {
+        if (dateEvent != null) {
+            try {
+                return LocalDateTime.parse(dateEvent); // Certifique-se de que o formato da string é compatível com LocalDateTime.parse()
+            } catch (Exception e) {
+                // Tratar o erro de conversão, se necessário
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
     @Override
@@ -54,7 +66,7 @@ public class CertificationItem implements Serializable {
                 ", userName='" + userName + '\'' +
                 ", eventTitle='" + eventTitle + '\'' +
                 ", eventDate=" + eventDate +
-                ", userId=" + userid +
+                ", userid=" + userid +
                 '}';
     }
 }

@@ -1,10 +1,11 @@
 package com.eventec.eventec.controllers;
-import com.eventec.eventec.models.CertificationItem;
-import org.springframework.web.bind.annotation.*;
 
+import com.eventec.eventec.models.CertificationItem;
+import com.eventec.eventec.models.ProfessorCertificationItem;
 import com.eventec.eventec.services.CertificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,9 +17,12 @@ public class CertificationController {
     private CertificationService certificationService;
 
     @PostMapping("/generate/{eventId}")
-    public ResponseEntity<String> generateCertificatesForEvent(@PathVariable Long eventId, @RequestBody List<Long> userIds) {
+    public ResponseEntity<String> generateCertificatesForEvent(@PathVariable Long eventId,
+                                                               @RequestParam String professorName,
+                                                               @RequestParam Long userid,
+                                                               @RequestBody List<Long> userIds) {
         try {
-            certificationService.generateCertificatesForEvent(eventId, userIds);
+            certificationService.generateCertificatesForEvent(eventId, professorName, userid, userIds);
             return ResponseEntity.ok("Certificados gerados com sucesso!");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erro ao gerar certificados: " + e.getMessage());
@@ -36,5 +40,14 @@ public class CertificationController {
         }
     }
 
+    @GetMapping("/professor/{userid}")
+    public ResponseEntity<List<ProfessorCertificationItem>> getProfessorCertificationsByUserId(@PathVariable Long userid) {
+        List<ProfessorCertificationItem> certifications = certificationService.getProfessorCertificatesByUserid(userid);
 
+        if (certifications.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(certifications);
+        }
+    }
 }

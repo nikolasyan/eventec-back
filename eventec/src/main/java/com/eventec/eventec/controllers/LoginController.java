@@ -23,13 +23,16 @@ public class LoginController {
         String password = body.get("password");
         Optional<UserItem> user = userItemService.getByEmailAndPassword(email, password);
         if (user.isPresent()) {
-            // Login successful
-            return ResponseEntity.ok().body(new LoginResponse("Login Successful"));
-
+            if (user.get().isEmailConfirmed()) {
+                // Login successful
+                return ResponseEntity.ok().body(new LoginResponse("Login realizado com sucesso!"));
+            } else {
+                // Email not confirmed
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Você precisa confirmar seu email antes de começar a usar o Eventec");
+            }
         } else {
             // Login failed
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Credentials");
-
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário ou senha inválidos!");
         }
     }
 }
